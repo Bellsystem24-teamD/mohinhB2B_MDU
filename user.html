@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mdu Fashion - Cổng Đại Lý Luxury</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f172a',
+                        gold: '#d4af37',
+                        goldlight: '#f9eeb6',
+                        darkbg: '#0a0a0a',
+                    },
+                    fontFamily: {
+                        brand: ['Cinzel', 'serif'],
+                        body: ['Roboto', 'sans-serif'],
+                    },
+                    backgroundImage: {
+                        'luxury-gradient': 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                        'gold-gradient': 'linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Roboto', sans-serif; background-color: #f8fafc; color: #334155; }
+        .brand-font { font-family: 'Cinzel', serif; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+        .glass-sidebar { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border-right: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .text-gold-gradient { background: linear-gradient(to right, #bf953f, #d4af37, #b38728); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-item.active { background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%); border-left: 3px solid #d4af37; color: #d4af37; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+        .qty-input:focus { border-color: #d4af37; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1); outline: none; }
+        /* Gallery Styles */
+        .gallery-thumb.active { border-color: #d4af37; opacity: 1; }
+        .gallery-thumb { border-color: transparent; opacity: 0.6; }
+        .gallery-thumb:hover { opacity: 1; }
+    </style>
+</head>
+<body class="antialiased h-screen overflow-hidden flex bg-[#f8fafc]">
+
+    <!-- AUTH SCREEN -->
+    <div id="auth-screen" class="fixed inset-0 z-[100] flex transition-opacity duration-700 bg-[#0f172a]">
+        <div class="hidden lg:flex w-1/2 relative overflow-hidden items-center justify-center bg-luxury-gradient">
+            <div class="absolute inset-0 opacity-20" style="background-image: url('https://www.transparenttextures.com/patterns/cubes.png');"></div>
+            <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=2574&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay">
+            <div class="relative z-10 text-center p-12">
+                <div class="inline-block border-2 border-gold/30 p-8 mb-8 backdrop-blur-sm bg-black/20">
+                    <h1 class="text-7xl brand-font text-white mb-2 tracking-wider">MDU.</h1>
+                    <p class="text-gold tracking-[0.4em] uppercase text-sm">Wholesale & Luxury</p>
+                </div>
+                <p class="text-gray-400 font-light max-w-md mx-auto leading-relaxed">"Thời trang không chỉ là vẻ đẹp, đó là thái độ. Nền tảng B2B độc quyền dành cho đối tác chiến lược."</p>
+            </div>
+        </div>
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-8 lg:p-16 bg-white relative">
+            <div class="w-full max-w-md animate-fade-in">
+                <div id="login-form-container">
+                    <div class="mb-10">
+                        <h2 class="text-3xl font-bold brand-font text-primary mb-2">Xin chào đối tác,</h2>
+                        <p class="text-gray-500">Đăng nhập để tiếp tục quản lý đơn hàng.</p>
+                    </div>
+                    <form id="login-form" class="space-y-6">
+                        <div><label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">Tên đăng nhập</label><input type="text" id="login-username" class="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-all" placeholder="VD: daily01"></div>
+                        <div><label class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">Mật khẩu</label><input type="password" id="login-password" class="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:border-gold focus:ring-1 focus:ring-gold outline-none transition-all" placeholder="••••••••"></div>
+                        <button type="submit" class="w-full bg-primary text-white py-4 rounded-lg font-bold uppercase tracking-widest hover:bg-gold transition-all duration-300 shadow-lg hover:shadow-gold/50">Đăng nhập</button>
+                    </form>
+                    <div class="mt-8 text-center border-t border-gray-100 pt-6"><p class="text-sm text-gray-500">Chưa có tài khoản? <button onclick="app.toggleAuthMode('register')" class="text-gold font-bold hover:underline">Đăng ký Đại lý</button></p></div>
+                </div>
+                <div id="register-form-container" class="hidden">
+                    <div class="mb-8"><h2 class="text-3xl font-bold brand-font text-primary mb-2">Trở thành Đối tác</h2><p class="text-gray-500">Điền thông tin để bắt đầu kinh doanh cùng MDU.</p></div>
+                    <form id="register-form" class="space-y-4">
+                        <input type="text" id="reg-name" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-gold outline-none" placeholder="Tên Shop / Đại lý" required>
+                        <div class="grid grid-cols-2 gap-4"><input type="tel" id="reg-phone" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-gold outline-none" placeholder="Số điện thoại" required><input type="text" id="reg-username" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-gold outline-none" placeholder="Username" required></div>
+                        <input type="text" id="reg-address" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-gold outline-none" placeholder="Địa chỉ nhận hàng" required>
+                        <input type="password" id="reg-password" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-gold outline-none" placeholder="Mật khẩu" required>
+                        <button type="submit" class="w-full bg-primary text-white py-4 rounded-lg font-bold uppercase tracking-widest hover:bg-gold transition-all duration-300 shadow-lg mt-4">Gửi đăng ký</button>
+                    </form>
+                    <div class="mt-6 text-center"><button onclick="app.toggleAuthMode('login')" class="text-sm text-gray-500 hover:text-primary"><i class="fas fa-arrow-left mr-1"></i> Quay lại đăng nhập</button></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="main-app" class="hidden flex-1 flex h-full relative">
+        <aside class="w-72 glass-sidebar text-white flex flex-col z-20 transition-transform duration-300 transform lg:translate-x-0 absolute lg:relative h-full" id="sidebar">
+            <div class="p-10 flex flex-col items-center"><h1 class="text-4xl font-bold brand-font tracking-tighter cursor-pointer text-gold-gradient" onclick="app.navTo('home')">MDU.</h1></div>
+            <nav class="flex-1 px-4 space-y-2 py-4">
+                <a href="#" onclick="app.navTo('home')" class="nav-item group flex items-center px-6 py-4 text-sm font-medium rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5" id="nav-home"><i class="fas fa-chart-pie w-6 mr-3 group-hover:text-gold transition-colors"></i> Tổng quan</a>
+                <a href="#" onclick="app.navTo('catalog')" class="nav-item group flex items-center px-6 py-4 text-sm font-medium rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5" id="nav-catalog"><i class="fas fa-tshirt w-6 mr-3 group-hover:text-gold transition-colors"></i> Kho hàng (B2B)</a>
+                <a href="#" onclick="app.navTo('orders')" class="nav-item group flex items-center px-6 py-4 text-sm font-medium rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5" id="nav-orders"><i class="fas fa-history w-6 mr-3 group-hover:text-gold transition-colors"></i> Lịch sử đơn</a>
+            </nav>
+            <div class="p-6 mt-auto">
+                <div class="glass-card bg-white/10 border-white/10 p-4 rounded-xl flex items-center space-x-3 mb-4"><div class="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-yellow-600 flex items-center justify-center font-bold text-primary shadow-lg" id="user-avatar-initial">U</div><div class="overflow-hidden"><p class="text-sm font-bold text-white truncate" id="user-display-name">...</p><p class="text-[10px] text-gold uppercase tracking-wider">Đại lý Chính thức</p></div></div>
+                <button onclick="app.logout()" class="w-full text-xs text-gray-500 hover:text-red-400 flex items-center justify-center py-2 transition-colors"><i class="fas fa-sign-out-alt mr-2"></i> Đăng xuất an toàn</button>
+            </div>
+        </aside>
+        <main class="flex-1 flex flex-col bg-[#f8fafc] overflow-hidden relative">
+            <header class="h-20 bg-white/80 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-8 z-10">
+                <div class="flex items-center"><button class="lg:hidden mr-4 text-gray-600" onclick="document.getElementById('sidebar').classList.toggle('-translate-x-full')"><i class="fas fa-bars text-xl"></i></button><h2 id="page-title" class="text-2xl font-bold brand-font text-primary">Tổng quan</h2></div>
+                <div class="flex items-center space-x-6"><div class="relative cursor-pointer group" onclick="app.toggleCart()"><div class="flex items-center gap-3 px-4 py-2 rounded-full hover:bg-gray-100 transition-colors"><span class="text-sm font-bold text-gray-600 group-hover:text-primary">Giỏ hàng</span><div class="relative"><i class="fas fa-shopping-bag text-xl text-gray-400 group-hover:text-gold transition-colors"></i><span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold shadow-sm ring-2 ring-white">0</span></div></div></div></div>
+            </header>
+            <div id="content-container" class="flex-1 overflow-y-auto p-6 lg:p-10 pb-24"></div>
+        </main>
+    </div>
+
+    <!-- PRODUCT DETAIL MODAL (GALLERY SUPPORT) -->
+    <div id="product-modal" class="fixed inset-0 z-[80] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-primary/80 backdrop-blur-md transition-opacity" onclick="app.closeProductModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl h-[90vh] relative z-10 flex overflow-hidden animate-fade-in flex-col md:flex-row">
+            <button onclick="app.closeProductModal()" class="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-lg flex items-center justify-center transition-all"><i class="fas fa-times text-gray-600"></i></button>
+            
+            <!-- Gallery Section -->
+            <div class="w-full md:w-3/5 bg-gray-50 flex flex-col md:flex-row relative">
+                <!-- Thumbnails List -->
+                <div class="w-full md:w-24 md:h-full order-2 md:order-1 overflow-x-auto md:overflow-y-auto p-4 flex md:flex-col gap-3 custom-scrollbar border-r border-gray-200 bg-white" id="modal-thumbs">
+                    <!-- Thumbnails injected by JS -->
+                </div>
+                <!-- Main Preview -->
+                <div class="flex-1 order-1 md:order-2 relative h-[50vh] md:h-full flex items-center justify-center p-4">
+                    <img id="modal-main-img" src="" class="max-w-full max-h-full object-contain transition-transform duration-300 hover:scale-105 cursor-zoom-in">
+                </div>
+            </div>
+
+            <!-- Info Section -->
+            <div class="w-full md:w-2/5 p-8 flex flex-col bg-white overflow-y-auto">
+                <div class="mb-auto">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-primary text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">New Arrival</span>
+                        <span class="text-sm text-gold font-bold uppercase tracking-widest brand-font">Mdu Collection</span>
+                    </div>
+                    <h2 id="modal-p-name" class="text-3xl md:text-4xl font-bold text-primary brand-font mb-2 leading-tight"></h2>
+                    <p id="modal-p-code" class="text-gray-400 font-mono text-sm mb-6 flex items-center gap-2"><i class="fas fa-tag"></i> <span id="code-text"></span></p>
+                    
+                    <div class="flex items-end gap-3 mb-8 pb-8 border-b border-gray-100">
+                        <div>
+                            <p class="text-xs text-gray-400 mb-1">Giá bán lẻ đề nghị</p>
+                            <span id="modal-p-retail" class="text-lg text-gray-400 line-through decoration-red-400 decoration-2"></span>
+                        </div>
+                        <div class="flex-1 text-right">
+                            <p class="text-xs text-gold font-bold uppercase mb-1">Giá nhập đại lý</p>
+                            <span id="modal-p-price" class="text-4xl font-bold text-primary"></span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <p class="font-bold text-gray-700 text-sm uppercase tracking-wide">Nhập số lượng:</p>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 hover:border-gold transition-colors">
+                                <label class="text-xs font-bold text-gray-400 block mb-2 text-center">Size S</label>
+                                <input type="number" min="0" placeholder="0" class="qty-input w-full bg-white border border-gray-200 rounded-lg text-center py-2 text-lg font-bold text-primary" id="modal-qty-S">
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 hover:border-gold transition-colors">
+                                <label class="text-xs font-bold text-gray-400 block mb-2 text-center">Size M</label>
+                                <input type="number" min="0" placeholder="0" class="qty-input w-full bg-white border border-gray-200 rounded-lg text-center py-2 text-lg font-bold text-primary" id="modal-qty-M">
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 hover:border-gold transition-colors">
+                                <label class="text-xs font-bold text-gray-400 block mb-2 text-center">Size L</label>
+                                <input type="number" min="0" placeholder="0" class="qty-input w-full bg-white border border-gray-200 rounded-lg text-center py-2 text-lg font-bold text-primary" id="modal-qty-L">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button id="modal-add-btn" class="w-full bg-primary text-white py-5 rounded-xl font-bold uppercase tracking-widest hover:bg-gold transition-all shadow-xl shadow-gold/20 mt-6 flex items-center justify-center gap-3 group">
+                    <span>Thêm vào đơn hàng</span>
+                    <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CART DRAWER -->
+    <div id="cart-drawer" class="fixed inset-0 z-[90] hidden pointer-events-none">
+        <div class="absolute inset-0 bg-primary/20 backdrop-blur-sm pointer-events-auto opacity-0 transition-opacity duration-300" onclick="app.toggleCart()" id="cart-overlay"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-full max-w-md bg-white shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 pointer-events-auto" id="cart-panel">
+            <div class="p-6 border-b flex justify-between items-center bg-gray-50/50 backdrop-blur-md">
+                <h2 class="text-xl font-bold brand-font text-primary">Giỏ Hàng <span class="text-gold text-2xl">.</span></h2>
+                <button onclick="app.toggleCart()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"><i class="fas fa-times text-gray-500"></i></button>
+            </div>
+            <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-6"></div>
+            <div class="p-6 border-t bg-white shadow-[0_-5px_20px_rgba(0,0,0,0.05)] z-10">
+                <div class="flex justify-between items-end mb-6"><span class="text-gray-500 text-sm">Tổng thanh toán</span><span id="cart-total-price" class="text-3xl font-bold brand-font text-primary">0đ</span></div>
+                <button onclick="app.checkout()" class="w-full bg-primary text-white py-4 rounded-xl font-bold shadow-lg hover:bg-gold hover:text-white transition-all duration-300 flex items-center justify-center gap-2 group">Tiến hành thanh toán <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAYMENT MODAL -->
+    <div id="payment-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-primary/60 backdrop-blur-md transition-opacity" onclick="app.closePaymentModal()"></div>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-4xl relative z-10 flex flex-col md:flex-row overflow-hidden animate-fade-in max-h-[90vh]">
+            <div class="w-full md:w-5/12 bg-gray-50 p-8 flex flex-col items-center justify-center border-r border-gray-100 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gold-gradient"></div>
+                <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(#444 1px, transparent 1px); background-size: 20px 20px;"></div>
+                <h3 class="font-bold text-xl brand-font mb-8 text-primary relative z-10">Quét mã thanh toán</h3>
+                <div class="bg-white p-4 rounded-2xl shadow-xl mb-6 transform hover:scale-105 transition-transform duration-300 relative z-10 border border-gray-100"><img id="vietqr-image" src="" class="w-56 h-56 object-contain"></div>
+                <div class="text-center relative z-10"><p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">Ngân hàng MB Bank</p><p class="text-lg font-bold text-primary mb-3">TRAN TRUONG VU</p><button class="flex items-center bg-white border border-gray-200 px-4 py-2 rounded-full text-sm font-mono hover:border-gold hover:text-gold transition-colors shadow-sm" onclick="navigator.clipboard.writeText('0587356681'); alert('Đã copy số tài khoản!')">0587356681 <i class="far fa-copy ml-2"></i></button></div>
+            </div>
+            <div class="w-full md:w-7/12 p-8 md:p-10 flex flex-col bg-white">
+                <div class="flex justify-between items-start mb-8"><div><h2 class="text-3xl font-bold brand-font text-primary">Hóa Đơn</h2><p class="text-gray-400 mt-1 text-sm">Vui lòng kiểm tra kỹ thông tin trước khi chuyển khoản.</p></div><button onclick="app.closePaymentModal()" class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors"><i class="fas fa-times text-gray-400 text-xl"></i></button></div>
+                <div class="flex-1 overflow-y-auto pr-2">
+                    <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 space-y-4 mb-6"><div class="flex justify-between text-sm"><span class="text-gray-500">Mã đơn hàng:</span> <span class="font-mono font-bold text-primary bg-white px-2 py-1 rounded border border-gray-200" id="pay-order-id">...</span></div><div class="flex justify-between text-sm"><span class="text-gray-500">Đại lý:</span> <span class="font-bold text-primary" id="pay-user-name">...</span></div><div class="flex justify-between text-sm"><span class="text-gray-500">SĐT:</span> <span class="font-bold text-primary" id="pay-user-phone">...</span></div><div class="h-px bg-gray-200 my-2"></div><div class="flex justify-between items-end"><span class="text-gray-600 font-medium">Tổng thanh toán:</span> <span class="text-gold font-black text-3xl brand-font" id="pay-total-amount">0đ</span></div></div>
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 flex gap-3 mb-4"><i class="fas fa-info-circle text-blue-600 mt-1"></i><p class="text-sm text-blue-800 leading-relaxed">Nội dung CK: <strong class="font-bold">Mã đơn + SĐT</strong>. Hệ thống sẽ tự động duyệt đơn và thông báo qua Zalo cho quý khách.</p></div>
+                </div>
+                <button onclick="app.confirmPaymentSuccess()" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 shadow-lg shadow-green-200 transform active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-auto"><i class="fas fa-check-circle"></i> Xác nhận đã chuyển khoản</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data including gallery array structure
+        const initialProducts = [
+            { id: 1, name: "Đầm Lụa Thiết Kế Luxury", code: "MDU-D001", retail: 1200000, wholesale: 780000, img: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500", gallery: ["https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500", "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=500", "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=500"], cat: "dam", stock: 120 },
+            { id: 2, name: "Blazer Công Sở Cao Cấp", code: "MDU-S023", retail: 2500000, wholesale: 1625000, img: "https://images.unsplash.com/photo-1591369045385-115fe86d4997?w=500", gallery: ["https://images.unsplash.com/photo-1591369045385-115fe86d4997?w=500"], cat: "vest", stock: 45 },
+            { id: 3, name: "Sơ Mi Lụa Ngọc Trai", code: "MDU-A112", retail: 890000, wholesale: 580000, img: "https://images.unsplash.com/photo-1598532163257-529a73887f43?w=500", gallery: ["https://images.unsplash.com/photo-1598532163257-529a73887f43?w=500", "https://images.unsplash.com/photo-1604176354204-9268737828c4?w=500"], cat: "ao", stock: 200 },
+        ];
+
+        let products = JSON.parse(localStorage.getItem('mdu_products')) || initialProducts;
+        if(!localStorage.getItem('mdu_products')) localStorage.setItem('mdu_products', JSON.stringify(products));
+
+        let orders = JSON.parse(localStorage.getItem('mdu_orders')) || [];
+        let users = JSON.parse(localStorage.getItem('mdu_users')) || [];
+        let cart = JSON.parse(localStorage.getItem('mdu_cart')) || [];
+        let currentUser = null;
+        let currentCheckoutOrder = null;
+        let viewMode = 'grid'; 
+        let currentModalProduct = null;
+
+        const app = {
+            init: function() {
+                const savedUser = JSON.parse(localStorage.getItem('mdu_current_user'));
+                if(savedUser && savedUser.role === 'agency') {
+                    currentUser = savedUser;
+                    this.enterApp();
+                }
+                document.getElementById('login-form').addEventListener('submit', (e) => { e.preventDefault(); this.login(); });
+                document.getElementById('register-form').addEventListener('submit', (e) => { e.preventDefault(); this.register(); });
+            },
+            toggleAuthMode: (mode) => {
+                const loginEl = document.getElementById('login-form-container');
+                const regEl = document.getElementById('register-form-container');
+                if(mode === 'register') { loginEl.classList.add('hidden'); regEl.classList.remove('hidden'); regEl.classList.add('animate-fade-in'); } 
+                else { regEl.classList.add('hidden'); loginEl.classList.remove('hidden'); loginEl.classList.add('animate-fade-in'); }
+            },
+            login: function() {
+                const u = document.getElementById('login-username').value;
+                const p = document.getElementById('login-password').value;
+                const user = users.find(usr => usr.username === u && usr.password === p);
+                if(user && user.role === 'agency') { currentUser = user; localStorage.setItem('mdu_current_user', JSON.stringify(user)); this.enterApp(); }
+                else if(u === 'admin') { alert("Đây là trang Khách hàng. Vui lòng sang trang Admin."); } 
+                else { alert("Sai thông tin đăng nhập!"); }
+            },
+            register: function() {
+                const name = document.getElementById('reg-name').value;
+                const u = document.getElementById('reg-username').value;
+                const p = document.getElementById('reg-password').value;
+                const phone = document.getElementById('reg-phone').value;
+                const addr = document.getElementById('reg-address').value;
+                if(users.find(user => user.username === u) || u === 'admin') return alert("Tên đăng nhập đã tồn tại.");
+                users.push({ username: u, password: p, name, role: 'agency', phone, address: addr });
+                localStorage.setItem('mdu_users', JSON.stringify(users));
+                alert("Đăng ký thành công! Vui lòng đăng nhập.");
+                this.toggleAuthMode('login');
+            },
+            logout: function() { localStorage.removeItem('mdu_current_user'); location.reload(); },
+            enterApp: function() {
+                document.getElementById('auth-screen').classList.add('opacity-0', 'pointer-events-none');
+                setTimeout(() => document.getElementById('auth-screen').remove(), 800);
+                document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('user-display-name').innerText = currentUser.name;
+                document.getElementById('user-avatar-initial').innerText = currentUser.name.charAt(0).toUpperCase();
+                this.navTo('home');
+                this.updateCartUI();
+            },
+            navTo: function(page) {
+                const titles = { 'home': 'Tổng Quan', 'catalog': 'Kho Sản Phẩm', 'orders': 'Lịch Sử Đơn Hàng' };
+                document.getElementById('page-title').innerText = titles[page];
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active', 'bg-white/5', 'text-white'));
+                const active = document.getElementById('nav-'+page);
+                if(active) active.classList.add('active', 'text-white');
+                if(page === 'home') this.renderHome();
+                if(page === 'catalog') this.renderCatalog();
+                if(page === 'orders') this.renderOrders();
+                if(window.innerWidth < 1024) document.getElementById('sidebar').classList.add('-translate-x-full');
+            },
+            
+            // --- PRODUCT DETAIL & GALLERY LOGIC ---
+            viewProduct: function(id) {
+                const p = products.find(x => x.id === id);
+                if(!p) return;
+                currentModalProduct = p;
+
+                document.getElementById('modal-p-name').innerText = p.name;
+                document.getElementById('code-text').innerText = p.code;
+                document.getElementById('modal-p-price').innerText = this.formatMoney(p.wholesale);
+                document.getElementById('modal-p-retail').innerText = this.formatMoney(p.retail);
+                
+                // Reset inputs
+                ['S','M','L'].forEach(s => document.getElementById(`modal-qty-${s}`).value = '');
+
+                // Setup Gallery Images
+                // Ensure we use p.gallery if it exists, otherwise fallback to p.img array
+                const galleryImages = (p.gallery && p.gallery.length > 0) ? p.gallery : [p.img];
+                
+                const mainImg = document.getElementById('modal-main-img');
+                const thumbs = document.getElementById('modal-thumbs');
+                
+                // Set initial main image
+                mainImg.src = galleryImages[0];
+                
+                // Render Thumbnails
+                thumbs.innerHTML = galleryImages.map((img, i) => `
+                    <div class="gallery-thumb cursor-pointer border-2 border-transparent rounded-lg overflow-hidden transition-all h-20 w-20 md:w-full md:h-24 flex-shrink-0 ${i===0 ? 'active' : ''}" 
+                         onclick="app.setMainImage('${img}', this)">
+                        <img src="${img}" class="w-full h-full object-cover">
+                    </div>
+                `).join('');
+
+                // Bind Add to Cart button
+                document.getElementById('modal-add-btn').onclick = () => {
+                    const s = parseInt(document.getElementById('modal-qty-S').value) || 0;
+                    const m = parseInt(document.getElementById('modal-qty-M').value) || 0;
+                    const l = parseInt(document.getElementById('modal-qty-L').value) || 0;
+                    if(s+m+l > 0) {
+                        this.addToCartFromModal(p.id, s, m, l);
+                        this.closeProductModal();
+                    } else {
+                        alert("Vui lòng nhập số lượng!");
+                    }
+                };
+
+                document.getElementById('product-modal').classList.remove('hidden');
+            },
+            setMainImage: function(src, el) {
+                document.getElementById('modal-main-img').src = src;
+                document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+                el.classList.add('active');
+            },
+            closeProductModal: () => document.getElementById('product-modal').classList.add('hidden'),
+            addToCartFromModal: function(id, s, m, l) {
+                const p = products.find(x => x.id === id);
+                cart.push({ ...p, qty: {s, m, l} });
+                localStorage.setItem('mdu_cart', JSON.stringify(cart));
+                this.updateCartUI();
+                
+                // Show floating notification (simulated)
+                const notif = document.createElement('div');
+                notif.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-xl z-[200] animate-fade-in flex items-center gap-2 font-bold';
+                notif.innerHTML = '<i class="fas fa-check-circle"></i> Đã thêm vào giỏ!';
+                document.body.appendChild(notif);
+                setTimeout(() => notif.remove(), 2000);
+            },
+
+            // --- RENDERING ---
+            renderHome: function() {
+                const myOrders = orders.filter(o => o.agencyId === currentUser.username);
+                const totalSpend = myOrders.reduce((sum, o) => sum + o.total, 0);
+                const pending = myOrders.filter(o => o.status === 'pending').length;
+                document.getElementById('content-container').innerHTML = `
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fade-in">
+                        <div class="glass-card bg-white p-6 rounded-2xl relative overflow-hidden group"><div class="absolute right-0 top-0 w-32 h-32 bg-gold/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div><p class="text-xs font-bold uppercase text-gray-400 mb-2">Tổng nhập hàng</p><h3 class="text-4xl font-black text-primary">${this.formatMoney(totalSpend)}</h3></div>
+                        <div class="glass-card bg-white p-6 rounded-2xl relative overflow-hidden group"><div class="absolute right-0 top-0 w-32 h-32 bg-orange-100/50 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700"></div><p class="text-xs font-bold uppercase text-gray-400 mb-2">Đơn đang xử lý</p><h3 class="text-4xl font-black text-primary">${pending}</h3></div>
+                        <div class="bg-primary text-white p-6 rounded-2xl relative overflow-hidden shadow-xl"><div class="absolute inset-0 bg-luxury-gradient opacity-90"></div><div class="relative z-10"><h3 class="text-3xl font-bold font-brand mb-1">Gold Partner</h3><p class="text-xs text-gray-400">Chiết khấu hiện tại: <span class="text-white font-bold">35%</span></p></div></div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in">
+                        <div class="lg:col-span-2 glass-card bg-white p-6 rounded-2xl h-80 flex items-center justify-center text-gray-400 bg-gray-50 border-dashed border-2 border-gray-200"><p>Biểu đồ doanh số (Đang cập nhật)</p></div>
+                        <div class="glass-card bg-white p-6 rounded-2xl"><h3 class="font-bold mb-4">Sản phẩm mới</h3><div class="space-y-4">${products.slice(0,3).map(p => `<div class="flex gap-4 cursor-pointer hover:bg-gray-50 p-2 rounded" onclick="app.viewProduct(${p.id})"><img src="${p.img}" class="w-12 h-12 rounded object-cover"><div class="flex-1"><p class="font-bold text-sm truncate">${p.name}</p><p class="text-xs text-gold font-bold">${this.formatMoney(p.wholesale)}</p></div></div>`).join('')}</div></div>
+                    </div>
+                `;
+            },
+            renderCatalog: function() {
+                products = JSON.parse(localStorage.getItem('mdu_products')) || initialProducts;
+                document.getElementById('content-container').innerHTML = `
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-8 animate-fade-in sticky top-0 z-10 py-4 bg-[#f8fafc]/95 backdrop-blur-sm border-b border-gray-100">
+                        <div class="relative w-full md:w-96 group"><input type="text" placeholder="Tìm kiếm sản phẩm..." class="w-full pl-12 pr-4 py-3 rounded-full bg-white border border-gray-200 focus:border-gold focus:ring-1 focus:ring-gold outline-none shadow-sm text-sm transition-all group-hover:shadow-md"><i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-gold transition-colors"></i></div>
+                        <div class="flex gap-2 mt-4 md:mt-0"><button onclick="app.setCatalogView('grid')" class="w-10 h-10 rounded-lg flex items-center justify-center transition-all ${viewMode === 'grid' ? 'bg-primary text-white shadow-lg' : 'bg-white text-gray-400 hover:bg-gray-100'}"><i class="fas fa-th-large"></i></button><button onclick="app.setCatalogView('list')" class="w-10 h-10 rounded-lg flex items-center justify-center transition-all ${viewMode === 'list' ? 'bg-primary text-white shadow-lg' : 'bg-white text-gray-400 hover:bg-gray-100'}"><i class="fas fa-list"></i></button></div>
+                    </div>
+                    ${viewMode === 'grid' ? this.renderGridView() : this.renderListView()}
+                `;
+            },
+            setCatalogView: function(mode) { viewMode = mode; this.renderCatalog(); },
+            renderGridView: function() {
+                return `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in pb-20">
+                        ${products.map(p => {
+                            const profit = p.retail - p.wholesale;
+                            const galleryCount = (p.gallery && p.gallery.length > 0) ? p.gallery.length : 1;
+                            return `
+                            <div class="product-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group h-full relative">
+                                <div class="relative h-80 overflow-hidden cursor-pointer" onclick="app.viewProduct(${p.id})">
+                                    <img src="${p.img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                    <div class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></div>
+                                    <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-primary shadow-lg border border-white"><span class="text-gold">●</span> Wholesale</div>
+                                    
+                                    <!-- Gallery Badge -->
+                                    ${galleryCount > 1 ? `<div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1"><i class="fas fa-images"></i> +${galleryCount-1} ảnh</div>` : ''}
+                                    
+                                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-white/30 backdrop-blur-md p-4 rounded-full text-white transform scale-50 group-hover:scale-100 duration-300 shadow-2xl border border-white/50"><i class="fas fa-eye text-2xl drop-shadow-md"></i></div>
+                                </div>
+                                <div class="p-6 flex-1 flex flex-col">
+                                    <div class="mb-4"><h4 class="font-bold text-lg text-primary brand-font truncate mb-1" title="${p.name}">${p.name}</h4><p class="text-xs text-gray-400 font-mono">${p.code}</p></div>
+                                    <div class="flex items-baseline gap-2 mb-6"><span class="text-xl font-bold text-gold-gradient">${this.formatMoney(p.wholesale)}</span><span class="text-xs text-gray-400 line-through">${this.formatMoney(p.retail)}</span></div>
+                                    <div class="mt-auto space-y-4">
+                                        <div class="grid grid-cols-3 gap-2 bg-gray-50 p-2 rounded-xl">${['S','M','L'].map(size => `<div class="text-center"><label class="text-[10px] text-gray-400 font-bold block mb-1">${size}</label><input type="number" min="0" placeholder="0" class="qty-input w-full py-1 text-sm bg-white rounded-md qty-${p.id}-${size}"></div>`).join('')}</div>
+                                        <button onclick="app.addToCart(${p.id})" class="w-full bg-primary text-white py-3 rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-gold transition-all shadow-lg active:scale-95">Thêm vào đơn</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `}).join('')}
+                    </div>
+                `;
+            },
+            renderListView: function() {
+                return `
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in pb-20">
+                        <table class="w-full text-left"><thead class="bg-gray-50/80 text-gray-500 uppercase text-xs font-bold border-b border-gray-100"><tr><th class="px-6 py-5">Sản phẩm</th><th class="px-6 py-5 text-right">Giá nhập</th><th class="px-2 py-5 text-center w-24">Size S</th><th class="px-2 py-5 text-center w-24">Size M</th><th class="px-2 py-5 text-center w-24">Size L</th><th class="px-6 py-5 text-center">Tác vụ</th></tr></thead>
+                        <tbody class="divide-y divide-gray-50">
+                            ${products.map(p => `
+                                <tr class="hover:bg-blue-50/30 transition-colors group">
+                                    <td class="px-6 py-4 cursor-pointer" onclick="app.viewProduct(${p.id})">
+                                        <div class="flex items-center gap-4">
+                                            <div class="relative w-12 h-12">
+                                                <img src="${p.img}" class="w-full h-full rounded-lg object-cover shadow-sm">
+                                                ${(p.gallery && p.gallery.length > 1) ? '<div class="absolute -top-1 -right-1 w-4 h-4 bg-gold rounded-full border-2 border-white flex items-center justify-center text-[8px] text-white font-bold">'+(p.gallery.length)+'</div>' : ''}
+                                            </div>
+                                            <div><div class="font-bold text-primary text-sm">${p.name}</div><div class="text-xs text-gray-400 font-mono">${p.code}</div></div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-right font-bold text-primary">${this.formatMoney(p.wholesale)}</td>
+                                    ${['S','M','L'].map(size => `<td class="px-2 py-4"><input type="number" min="0" class="qty-input w-full py-2 bg-white rounded-lg text-sm qty-${p.id}-${size}" placeholder="-"></td>`).join('')}
+                                    <td class="px-6 py-4 text-center"><button onclick="app.addToCart(${p.id})" class="w-8 h-8 rounded-full bg-gold/10 text-gold hover:bg-gold hover:text-white transition-all flex items-center justify-center mx-auto"><i class="fas fa-plus"></i></button></td>
+                                </tr>
+                            `).join('')}
+                        </tbody></table>
+                    </div>
+                `;
+            },
+            renderOrders: function() {
+                const myOrders = orders.filter(o => o.agencyId === currentUser.username).reverse();
+                if(myOrders.length === 0) return document.getElementById('content-container').innerHTML = `<div class="flex flex-col items-center justify-center h-[60vh] text-center animate-fade-in"><div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center text-gray-300 mb-6"><i class="fas fa-box-open text-4xl"></i></div><h3 class="text-xl font-bold text-primary mb-2">Chưa có đơn hàng nào</h3></div>`;
+                document.getElementById('content-container').innerHTML = `
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in"><div class="p-6 border-b border-gray-100 flex justify-between items-center"><h3 class="font-bold text-lg text-primary brand-font">Lịch sử nhập hàng</h3><button class="text-xs font-bold text-green-600 bg-green-50 px-3 py-2 rounded-lg hover:bg-green-100 transition-colors"><i class="fas fa-file-excel mr-1"></i> Xuất Excel</button></div>
+                    <div class="overflow-x-auto"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-50 text-gray-500 uppercase text-xs font-bold"><tr><th class="px-6 py-4">Mã đơn</th><th class="px-6 py-4">Ngày đặt</th><th class="px-6 py-4">Số lượng</th><th class="px-6 py-4">Tổng tiền</th><th class="px-6 py-4">Trạng thái</th><th class="px-6 py-4 text-right">Chi tiết</th></tr></thead>
+                    <tbody class="divide-y divide-gray-50">${myOrders.map(o => `
+                        <tr class="hover:bg-gray-50 transition-colors"><td class="px-6 py-4 font-bold text-primary font-mono">#${o.id}</td><td class="px-6 py-4 text-gray-500">${o.date}</td><td class="px-6 py-4 font-bold">${o.totalQty} sp</td><td class="px-6 py-4 font-bold text-primary">${this.formatMoney(o.total)}</td><td class="px-6 py-4"><span class="px-3 py-1 rounded-full text-xs font-bold border flex items-center w-fit gap-2 status-${o.status}">${o.status}</span></td><td class="px-6 py-4 text-right"><button class="w-8 h-8 rounded-full hover:bg-gray-100 flex items-center justify-center ml-auto text-gray-400 hover:text-primary"><i class="fas fa-arrow-right"></i></button></td></tr>
+                    `).join('')}</tbody></table></div></div>
+                `;
+            },
+
+            // --- CART & CHECKOUT ---
+            addToCart: function(id) {
+                const s = parseInt(document.querySelector(`.qty-${id}-S`).value) || 0;
+                const m = parseInt(document.querySelector(`.qty-${id}-M`).value) || 0;
+                const l = parseInt(document.querySelector(`.qty-${id}-L`).value) || 0;
+                if(s+m+l === 0) return alert("Vui lòng nhập số lượng!");
+                const p = products.find(x => x.id === id);
+                cart.push({ ...p, qty: {s, m, l} });
+                localStorage.setItem('mdu_cart', JSON.stringify(cart));
+                document.querySelectorAll(`.qty-${id}-S, .qty-${id}-M, .qty-${id}-L`).forEach(el => el.value = '');
+                this.updateCartUI();
+                
+                const notif = document.createElement('div');
+                notif.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-xl z-[200] animate-fade-in flex items-center gap-2 font-bold';
+                notif.innerHTML = '<i class="fas fa-check-circle"></i> Đã thêm vào giỏ!';
+                document.body.appendChild(notif);
+                setTimeout(() => notif.remove(), 2000);
+            },
+            removeCart: function(i) { cart.splice(i, 1); localStorage.setItem('mdu_cart', JSON.stringify(cart)); this.updateCartUI(); },
+            updateCartUI: function() {
+                document.getElementById('cart-count').innerText = cart.length;
+                let total = 0;
+                const html = cart.map((item, i) => {
+                    const sum = (item.qty.s + item.qty.m + item.qty.l) * item.wholesale; total += sum;
+                    return `<div class="flex gap-4 border-b border-gray-100 pb-4 animate-fade-in group"><img src="${item.img}" class="w-20 h-24 object-cover rounded-lg shadow-sm"><div class="flex-1"><div class="flex justify-between items-start mb-1"><h4 class="font-bold text-sm text-primary line-clamp-1">${item.name}</h4><button onclick="app.removeCart(${i})" class="text-gray-300 hover:text-red-500 p-1"><i class="fas fa-trash-alt"></i></button></div><div class="flex gap-2 text-[10px] text-gray-500 font-mono mb-2"><span class="bg-gray-50 px-2 py-1 rounded">S:${item.qty.s}</span><span class="bg-gray-50 px-2 py-1 rounded">M:${item.qty.m}</span><span class="bg-gray-50 px-2 py-1 rounded">L:${item.qty.l}</span></div><div class="flex justify-between items-end"><span class="text-xs text-gray-400">x ${this.formatMoney(item.wholesale)}</span><span class="font-bold text-gold">${this.formatMoney(sum)}</span></div></div></div>`;
+                }).join('');
+                document.getElementById('cart-items').innerHTML = html || '<div class="text-center text-gray-400 py-10 flex flex-col items-center"><i class="fas fa-shopping-basket text-4xl mb-3 opacity-20"></i>Giỏ hàng trống</div>';
+                document.getElementById('cart-total-price').innerText = this.formatMoney(total);
+            },
+            toggleCart: () => {
+                const el = document.getElementById('cart-drawer'), overlay = document.getElementById('cart-overlay'), panel = document.getElementById('cart-panel');
+                if(el.classList.contains('hidden')) { el.classList.remove('hidden'); setTimeout(() => { overlay.classList.remove('opacity-0'); panel.classList.remove('translate-x-full'); }, 10); } 
+                else { overlay.classList.add('opacity-0'); panel.classList.add('translate-x-full'); setTimeout(() => el.classList.add('hidden'), 300); }
+            },
+            checkout: function() {
+                if(cart.length === 0) return alert("Giỏ hàng trống!");
+                let total = 0, totalQty = 0;
+                cart.forEach(c => { const q = c.qty.s + c.qty.m + c.qty.l; totalQty += q; total += q * c.wholesale; });
+                const today = new Date();
+                currentCheckoutOrder = { id: Math.floor(1000 + Math.random() * 9000), date: `${today.getDate()}/${today.getMonth()+1}/${today.getFullYear()}`, totalQty, total, status: 'pending', agencyId: currentUser.username, agencyName: currentUser.name, agencyPhone: currentUser.phone, agencyAddress: currentUser.address, itemList: cart };
+                document.getElementById('pay-order-id').innerText = "#" + currentCheckoutOrder.id;
+                document.getElementById('pay-user-name').innerText = currentUser.name;
+                document.getElementById('pay-user-phone').innerText = currentUser.phone;
+                document.getElementById('pay-total-amount').innerText = this.formatMoney(total);
+                document.getElementById('vietqr-image').src = `https://img.vietqr.io/image/MB-0587356681-compact.png?amount=${total}&addInfo=ORD${currentCheckoutOrder.id}&accountName=TRAN%20TRUONG%20VU`;
+                this.toggleCart();
+                document.getElementById('payment-modal').classList.remove('hidden');
+            },
+            closePaymentModal: () => document.getElementById('payment-modal').classList.add('hidden'),
+            confirmPaymentSuccess: function() {
+                orders.push(currentCheckoutOrder); localStorage.setItem('mdu_orders', JSON.stringify(orders));
+                cart = []; localStorage.setItem('mdu_cart', JSON.stringify(cart));
+                this.updateCartUI(); this.closePaymentModal(); this.navTo('orders');
+                setTimeout(() => alert("Đơn hàng đã được gửi thành công!"), 300);
+            },
+            formatMoney: (n) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n).replace('₫', 'đ')
+        };
+        app.init();
+    </script>
+</body>
+</html>
