@@ -89,10 +89,13 @@
     </div>
 
     <script>
-        // Init Data Sync from LocalStorage (Shared with User page)
+        // DATA SYNC
         let orders = JSON.parse(localStorage.getItem('mdu_orders')) || [];
         let products = JSON.parse(localStorage.getItem('mdu_products')) || [];
         let users = JSON.parse(localStorage.getItem('mdu_users')) || [];
+
+        // COLORS DEFINITION
+        const COLORS = ['Đỏ', 'Cam', 'Vàng', 'Xanh lá', 'Xanh dương', 'Tím', 'Hồng', 'Trắng', 'Đen', 'Nâu'];
 
         const app = {
             init: function() {
@@ -111,7 +114,6 @@
                 });
             },
             navTo: function(page) {
-                // Update Sidebar UI
                 document.querySelectorAll('nav button').forEach(b => {
                     b.classList.remove('bg-yellow-600', 'text-black', 'font-bold');
                     b.classList.add('text-gray-400', 'hover:bg-gray-800', 'hover:text-white');
@@ -128,7 +130,7 @@
             
             // --- ORDERS ---
             renderOrders: function() {
-                orders = JSON.parse(localStorage.getItem('mdu_orders')) || []; // Refresh
+                orders = JSON.parse(localStorage.getItem('mdu_orders')) || []; 
                 const container = document.getElementById('content-container');
                 if(orders.length === 0) return container.innerHTML = '<p class="text-gray-400">Chưa có đơn hàng nào.</p>';
 
@@ -166,16 +168,27 @@
                 document.getElementById('modal-total').innerText = this.formatMoney(order.total);
                 document.getElementById('modal-status').innerText = order.status;
 
-                document.getElementById('modal-items').innerHTML = order.itemList.map(i => `
-                    <div class="flex gap-4 border p-2 rounded">
+                document.getElementById('modal-items').innerHTML = order.itemList.map(i => {
+                    const q = i.qty;
+                    // Format qty display
+                    let qtyStr = [];
+                    if(q.s) qtyStr.push(`S:${q.s}`);
+                    if(q.m) qtyStr.push(`M:${q.m}`);
+                    if(q.l) qtyStr.push(`L:${q.l}`);
+                    if(q.xl) qtyStr.push(`XL:${q.xl}`);
+                    if(q.xxl) qtyStr.push(`XXL:${q.xxl}`);
+                    
+                    return `
+                    <div class="flex gap-4 border p-2 rounded items-center">
                         <img src="${i.img}" class="w-12 h-12 object-cover rounded">
                         <div class="flex-1">
                             <p class="font-bold text-sm">${i.name}</p>
-                            <p class="text-xs text-gray-500">S:${i.qty.s} M:${i.qty.m} L:${i.qty.l}</p>
+                            <p class="text-xs font-bold text-blue-600">Màu: ${i.color}</p>
+                            <div class="flex flex-wrap gap-1 mt-1">${qtyStr.map(s => `<span class="bg-gray-100 text-[10px] px-1 rounded">${s}</span>`).join('')}</div>
                         </div>
-                        <p class="font-bold text-sm text-yellow-600">${this.formatMoney((i.qty.s+i.qty.m+i.qty.l)*i.wholesale)}</p>
+                        <p class="font-bold text-sm text-yellow-600">${this.formatMoney((q.s+q.m+q.l+q.xl+q.xxl)*i.wholesale)}</p>
                     </div>
-                `).join('');
+                `}).join('');
 
                 let btns = '<button onclick="app.closeModal()" class="px-4 py-2 bg-gray-200 rounded font-bold">Đóng</button>';
                 if(order.status === 'pending') {
@@ -209,9 +222,22 @@
                             <input id="p-name" placeholder="Tên sản phẩm" class="border p-2 rounded col-span-2 focus:outline-none focus:border-black">
                             <input id="p-code" placeholder="Mã (VD: MDU-001)" class="border p-2 rounded focus:outline-none focus:border-black">
                             <input id="p-price" type="number" placeholder="Giá sỉ" class="border p-2 rounded focus:outline-none focus:border-black">
+                            
+                            <div class="col-span-4 bg-gray-50 p-3 rounded border">
+                                <label class="block text-xs font-bold text-gray-500 mb-2">Chọn màu sắc có sẵn:</label>
+                                <div class="flex flex-wrap gap-3">
+                                    ${COLORS.map(c => `
+                                        <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1 rounded border hover:border-black">
+                                            <input type="checkbox" value="${c}" class="color-check accent-black">
+                                            <span class="text-sm">${c}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+
                             <div class="col-span-4">
-                                <label class="block text-xs font-bold text-gray-500 mb-1">Danh sách ảnh (Mỗi dòng 1 link, dòng đầu là ảnh chính):</label>
-                                <textarea id="p-imgs" placeholder="https://example.com/anh1.jpg&#10;https://example.com/anh2.jpg" class="border p-2 rounded w-full h-24 focus:outline-none focus:border-black resize-y"></textarea>
+                                <label class="block text-xs font-bold text-gray-500 mb-1">Danh sách ảnh (Mỗi dòng 1 link):</label>
+                                <textarea id="p-imgs" placeholder="https://..." class="border p-2 rounded w-full h-24 focus:outline-none focus:border-black resize-y"></textarea>
                             </div>
                             <button onclick="app.addProduct()" class="col-span-4 bg-black text-white font-bold py-3 rounded hover:bg-gray-800 transition">Thêm Sản Phẩm</button>
                         </div>
@@ -219,6 +245,7 @@
                     <div class="grid grid-cols-5 gap-4">
                         ${products.map(p => {
                             const imgCount = p.gallery ? p.gallery.length : 1;
+                            const pColors = p.colors || [];
                             return `
                             <div class="bg-white border rounded-xl overflow-hidden relative group">
                                 <div class="relative h-40">
@@ -227,9 +254,12 @@
                                 </div>
                                 <div class="p-3">
                                     <p class="font-bold truncate text-sm" title="${p.name}">${p.name}</p>
-                                    <div class="flex justify-between items-center mt-1">
+                                    <div class="flex justify-between items-center mt-1 mb-2">
                                         <p class="text-xs text-gray-500 font-mono">${p.code}</p>
                                         <p class="text-yellow-700 font-bold text-sm">${this.formatMoney(p.wholesale)}</p>
+                                    </div>
+                                    <div class="flex flex-wrap gap-1">
+                                        ${pColors.map(c => `<span class="text-[9px] bg-gray-100 px-1 rounded border text-gray-600">${c}</span>`).join('')}
                                     </div>
                                 </div>
                                 <button onclick="app.delProduct(${p.id})" class="absolute top-2 right-2 bg-red-500 text-white w-7 h-7 rounded-full opacity-0 group-hover:opacity-100 transition flex items-center justify-center shadow-lg"><i class="fas fa-trash text-xs"></i></button>
@@ -244,10 +274,13 @@
                 const price = document.getElementById('p-price').value;
                 const imgText = document.getElementById('p-imgs').value;
                 
-                // Parse images
+                // Get selected colors
+                const selectedColors = Array.from(document.querySelectorAll('.color-check:checked')).map(el => el.value);
+
                 const images = imgText.split(/\n/).map(s => s.trim()).filter(s => s.length > 0);
 
-                if(!name || !price || images.length === 0) return alert("Vui lòng nhập tên, giá và ít nhất 1 ảnh!");
+                if(!name || !price || images.length === 0) return alert("Vui lòng nhập tên, giá và ảnh!");
+                if(selectedColors.length === 0) return alert("Vui lòng chọn ít nhất 1 màu!");
 
                 products.push({ 
                     id: Date.now(), 
@@ -255,9 +288,10 @@
                     code, 
                     wholesale: parseInt(price), 
                     retail: parseInt(price)*1.5, 
-                    img: images[0], // Main image for legacy support
-                    gallery: images, // Full gallery
-                    cat: 'new' 
+                    img: images[0], 
+                    gallery: images, 
+                    cat: 'new',
+                    colors: selectedColors
                 });
                 localStorage.setItem('mdu_products', JSON.stringify(products));
                 this.renderProducts();
