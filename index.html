@@ -7,7 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Updated: Removed Cinzel, keeping only Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -19,7 +20,8 @@
                         darkbg: '#0a0a0a',
                     },
                     fontFamily: {
-                        brand: ['Cinzel', 'serif'],
+                        // Updated: Both brand and body now use Roboto
+                        brand: ['Roboto', 'sans-serif'],
                         body: ['Roboto', 'sans-serif'],
                     },
                     backgroundImage: {
@@ -32,7 +34,9 @@
     </script>
     <style>
         body { font-family: 'Roboto', sans-serif; background-color: #f8fafc; color: #334155; }
-        .brand-font { font-family: 'Cinzel', serif; }
+        /* Updated: Forced Roboto for brand-font class */
+        .brand-font { font-family: 'Roboto', sans-serif; }
+        
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 10px; }
@@ -59,8 +63,8 @@
             <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=2574&auto=format&fit=crop" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay">
             <div class="relative z-10 text-center p-12">
                 <div class="inline-block border-2 border-gold/30 p-8 mb-8 backdrop-blur-sm bg-black/20">
-                    <h1 class="text-7xl brand-font text-white mb-2 tracking-wider">MDU.</h1>
-                    <p class="text-gold tracking-[0.4em] uppercase text-sm">Wholesale & Luxury</p>
+                    <h1 class="text-7xl brand-font font-black text-white mb-2 tracking-wider">MDU.</h1>
+                    <p class="text-gold tracking-[0.4em] uppercase text-sm font-bold">Wholesale & Luxury</p>
                 </div>
                 <p class="text-gray-400 font-light max-w-md mx-auto leading-relaxed">"Thời trang không chỉ là vẻ đẹp, đó là thái độ. Nền tảng B2B độc quyền dành cho đối tác chiến lược."</p>
             </div>
@@ -69,7 +73,7 @@
             <div class="w-full max-w-md animate-fade-in">
                 <div id="login-form-container">
                     <div class="mb-10">
-                        <h2 class="text-3xl font-bold brand-font text-primary mb-2">Xin chào đối tác,</h2>
+                        <h2 class="text-3xl font-black brand-font text-primary mb-2">Xin chào đối tác,</h2>
                         <p class="text-gray-500">Đăng nhập để tiếp tục quản lý đơn hàng.</p>
                     </div>
                     <form id="login-form" class="space-y-6">
@@ -80,7 +84,7 @@
                     <div class="mt-8 text-center border-t border-gray-100 pt-6"><p class="text-sm text-gray-500">Chưa có tài khoản? <button onclick="app.toggleAuthMode('register')" class="text-gold font-bold hover:underline">Đăng ký Đại lý</button></p></div>
                 </div>
                 <div id="register-form-container" class="hidden">
-                    <div class="mb-8"><h2 class="text-3xl font-bold brand-font text-primary mb-2">Trở thành Đối tác</h2><p class="text-gray-500">Điền thông tin để bắt đầu kinh doanh cùng MDU.</p></div>
+                    <div class="mb-8"><h2 class="text-3xl font-black brand-font text-primary mb-2">Trở thành Đối tác</h2><p class="text-gray-500">Điền thông tin để bắt đầu kinh doanh cùng MDU.</p></div>
                     <form id="register-form" class="space-y-4">
                         <input type="text" id="reg-name" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-gold outline-none" placeholder="Tên Shop / Đại lý" required>
                         <div class="grid grid-cols-2 gap-4"><input type="tel" id="reg-phone" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-gold outline-none" placeholder="Số điện thoại" required><input type="text" id="reg-username" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:border-gold outline-none" placeholder="Username" required></div>
@@ -97,7 +101,7 @@
     <!-- MAIN APP -->
     <div id="main-app" class="hidden flex-1 flex h-full relative">
         <aside class="w-72 glass-sidebar text-white flex flex-col z-20 transition-transform duration-300 transform lg:translate-x-0 absolute lg:relative h-full" id="sidebar">
-            <div class="p-10 flex flex-col items-center"><h1 class="text-4xl font-bold brand-font tracking-tighter cursor-pointer text-gold-gradient" onclick="app.navTo('home')">MDU.</h1></div>
+            <div class="p-10 flex flex-col items-center"><h1 class="text-4xl font-black brand-font tracking-tighter cursor-pointer text-gold-gradient" onclick="app.navTo('home')">MDU.</h1></div>
             <nav class="flex-1 px-4 space-y-2 py-4">
                 <a href="#" onclick="app.navTo('home')" class="nav-item group flex items-center px-6 py-4 text-sm font-medium rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5" id="nav-home"><i class="fas fa-chart-pie w-6 mr-3 group-hover:text-gold transition-colors"></i> Tổng quan</a>
                 <a href="#" onclick="app.navTo('catalog')" class="nav-item group flex items-center px-6 py-4 text-sm font-medium rounded-xl transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5" id="nav-catalog"><i class="fas fa-tshirt w-6 mr-3 group-hover:text-gold transition-colors"></i> Kho hàng (B2B)</a>
